@@ -28,28 +28,28 @@ func NewApp() *App {
 	return &App{}
 }
 
-// OpenFile открывает диалоговое окно для выбора файла
-func (a *App) OpenFile() (string, error) {
+func (a *App) OpenFile(ctx context.Context) (string, error) {
 	// Показываем диалог выбора файла
-	filePath, err := runtime.OpenFileDialog(nil, runtime.OpenDialogOptions{
+	filePath, err := runtime.OpenFileDialog(ctx, runtime.OpenDialogOptions{
 		Title: "Select a file to open",
 	})
 	if err != nil {
+		println("Error while opening file dialog:", err.Error())
 		return "", err
 	}
 
-	// Если файл не выбран, возвращаем пустую строку
 	if filePath == "" {
+		println("No file selected.")
 		return "", nil
 	}
 
-	// Считываем содержимое файла
 	data, err := os.ReadFile(filePath)
 	if err != nil {
+		println("Error while reading file:", err.Error())
 		return "", err
 	}
 
-	a.filePath = filePath // Сохраняем путь к файлу
+	a.filePath = filePath
 	return string(data), nil
 }
 

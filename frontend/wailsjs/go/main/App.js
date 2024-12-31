@@ -10,6 +10,6 @@ export function Encrypt(arg1, arg2) {
   return window['go']['main']['App']['Encrypt'](arg1, arg2);
 }
 
-export function OpenFile() {
-  return window['go']['main']['App']['OpenFile']();
+export function OpenFile(arg1) {
+  return window['go']['main']['App']['OpenFile'](arg1);
 }

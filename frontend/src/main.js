@@ -22,7 +22,7 @@ const encryptButton = document.getElementById("encryptFile");
 const decryptButton = document.getElementById("decryptFile");
 
 openFileButton.addEventListener("click", async () => {
-  const filePath = await window.backend.App.OpenFile();
+  const filePath = await window.go.main.App.OpenFile();
   if (filePath) {
     fileContentArea.value = filePath;
   } else {
@@ -37,7 +37,7 @@ encryptButton.addEventListener("click", async () => {
     alert("Please provide both content and password.");
     return;
   }
-  const result = await window.backend.App.Encrypt(content, password);
+  const result = await window.go.main.App.Encrypt(content, password);
   fileContentArea.value = result;
   alert("File encrypted!");
 });
@@ -49,7 +49,7 @@ decryptButton.addEventListener("click", async () => {
     alert("Please provide both content and password.");
     return;
   }
-  const result = await window.backend.App.Decrypt(content, password);
+  const result = await window.go.main.App.Decrypt(content, password);
   fileContentArea.value = result;
   alert("File decrypted!");
 });
