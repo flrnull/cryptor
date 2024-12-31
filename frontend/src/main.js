@@ -22,7 +22,7 @@ const decryptButton = document.getElementById("decryptFile");
 let filePath;
 
 // Функция для показа диалогов ошибок
-async function showError(message) {
+async function showMessage(message) {
   await window.go.main.App.ShowNotice(message);
 }
 
@@ -32,10 +32,10 @@ openFileButton.addEventListener("click", async () => {
     if (filePath) {
       fileContentArea.value = filePath;
     } else {
-      await showError("Failed to open file.");
+      await showMessage("Failed to open file.");
     }
   } catch (error) {
-    await showError(`Error: ${error.message}`);
+    await showMessage(`Error: ${error.message}`);
   }
 });
 
@@ -43,19 +43,14 @@ encryptButton.addEventListener("click", async () => {
   const content = fileContentArea.value;
   const password = passwordInput.value;
   if (!content || !password) {
-    await showError("Please provide both content and password.");
+    await showMessage("Please provide both content and password.");
     return;
   }
   try {
     const result = await window.go.main.App.Encrypt(content, password);
     fileContentArea.value = result;
-    await window.runtime.MessageDialog({
-      type: "info",
-      title: "Success",
-      message: "File encrypted successfully!",
-    });
   } catch (error) {
-    await showError(`Encryption Error: ${error.message}`);
+    await showMessage(`Encryption Error: ${error.message}`);
   }
 });
 
@@ -63,18 +58,13 @@ decryptButton.addEventListener("click", async () => {
   const content = fileContentArea.value;
   const password = passwordInput.value;
   if (!content || !password) {
-    await showError("Please provide both content and password.");
+    await showMessage("Please provide both content and password.");
     return;
   }
   try {
     const result = await window.go.main.App.Decrypt(content, password);
     fileContentArea.value = result;
-    await window.runtime.MessageDialog({
-      type: "info",
-      title: "Success",
-      message: "File decrypted successfully!",
-    });
   } catch (error) {
-    await showError(`Decryption Error: ${error.message}`);
+    await showMessage(`Decryption Error: ${error.message}`);
   }
 });
