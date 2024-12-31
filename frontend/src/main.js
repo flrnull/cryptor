@@ -35,7 +35,7 @@ openFileButton.addEventListener("click", async () => {
       await showMessage("Failed to open file.");
     }
   } catch (error) {
-    await showMessage(`Error: ${error.message}`);
+    await showMessage(`Error: ${error}`);
   }
 });
 
@@ -50,7 +50,7 @@ encryptButton.addEventListener("click", async () => {
     const result = await window.go.main.App.Encrypt(content, password);
     fileContentArea.value = result;
   } catch (error) {
-    await showMessage(`Encryption Error: ${error.message}`);
+    await showMessage(`Encryption Error: ${error}`);
   }
 });
 
@@ -65,6 +65,6 @@ decryptButton.addEventListener("click", async () => {
     const result = await window.go.main.App.Decrypt(content, password);
     fileContentArea.value = result;
   } catch (error) {
-    await showMessage(`Decryption Error: ${error.message}`);
+    await showMessage(`Decryption Error: ${error}`);
   }
 });
