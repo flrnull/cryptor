@@ -54,20 +54,10 @@ func (a *App) OpenFile() (string, error) {
 	return string(data), nil
 }
 
-func (a *App) Save(content, password string) (string, error) {
+func (a *App) Save(content string) (string, error) {
 	// Если указан пароль, шифруем содержимое
-	var data []byte
+	var data = []byte(content)
 	var err error
-
-	if password != "" {
-		encrypted, err := a.Encrypt(content, password)
-		if err != nil {
-			return "", err
-		}
-		data = []byte(encrypted)
-	} else {
-		data = []byte(content)
-	}
 
 	if a.filePath != "" {
 		err = os.WriteFile(a.filePath, data, 0644)
