@@ -1,17 +1,22 @@
 package main
 
 import (
+        "embed"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
-	"io"
-	"io/ioutil"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"os"
+        "context"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 )
+
+//go:embed all:frontend/dist
+var assets embed.FS
 
 type App struct {
 	filePath    string
@@ -23,79 +28,64 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (a *App) OpenFile(filePath string) (string, error) {
-	a.filePath = filePath
-	data, err := ioutil.ReadFile(filePath)
+// OpenFile открывает диалоговое окно для выбора файла
+func (a *App) OpenFile() (string, error) {
+	// Показываем диалог выбора файла
+	filePath, err := runtime.OpenFileDialog(nil, runtime.OpenDialogOptions{
+		Title: "Select a file to open",
+	})
 	if err != nil {
 		return "", err
 	}
-	a.content = data
-	if isEncrypted(filePath) {
-		a.isEncrypted = true
-		return "Encrypted", nil
+
+	// Если файл не выбран, возвращаем пустую строку
+	if filePath == "" {
+		return "", nil
 	}
-	a.isEncrypted = false
+
+	// Считываем содержимое файла
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	a.filePath = filePath // Сохраняем путь к файлу
 	return string(data), nil
 }
 
-func (a *App) SaveFile(content string, password string) error {
-	data := []byte(content)
-	if a.isEncrypted {
-		encryptedData, err := encrypt(data, password)
-		if err != nil {
-			return err
-		}
-		return ioutil.WriteFile(a.filePath, encryptedData, 0644)
-	}
-	return ioutil.WriteFile(a.filePath, data, 0644)
-}
-
-func (a *App) Decrypt(password string) (string, error) {
-	if !a.isEncrypted {
-		return string(a.content), nil
-	}
-	decryptedData, err := decrypt(a.content, password)
+// Encrypt шифрует текст
+func (a *App) Encrypt(content, password string) (string, error) {
+	key := sha256.Sum256([]byte(password))
+	block, err := aes.NewCipher(key[:])
 	if err != nil {
 		return "", err
 	}
-	a.isEncrypted = false
-	return string(decryptedData), nil
-}
-
-func isEncrypted(filePath string) bool {
-	return len(filePath) > 4 && filePath[len(filePath)-4:] == ".enc"
-}
-
-func encrypt(data []byte, password string) ([]byte, error) {
-	key := sha256.Sum256([]byte(password))
-	block, err := aes.NewCipher(key[:])
-	if err != nil {
-		return nil, err
-	}
-	ciphertext := make([]byte, aes.BlockSize+len(data))
+	ciphertext := make([]byte, aes.BlockSize+len(content))
 	iv := ciphertext[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return nil, err
+	if _, err := rand.Read(iv); err != nil {
+		return "", err
 	}
 	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(ciphertext[aes.BlockSize:], data)
-	return ciphertext, nil
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], []byte(content))
+	return string(ciphertext), nil
 }
 
-func decrypt(data []byte, password string) ([]byte, error) {
+// Decrypt расшифровывает текст
+func (a *App) Decrypt(content, password string) (string, error) {
 	key := sha256.Sum256([]byte(password))
 	block, err := aes.NewCipher(key[:])
 	if err != nil {
-		return nil, err
+		return "", err
 	}
+	data := []byte(content)
 	if len(data) < aes.BlockSize {
-		return nil, errors.New("ciphertext too short")
+		return "", errors.New("ciphertext too short")
 	}
 	iv := data[:aes.BlockSize]
 	data = data[aes.BlockSize:]
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(data, data)
-	return data, nil
+	return string(data), nil
 }
 
 func main() {
@@ -107,6 +97,10 @@ func main() {
 	    Bind: []interface{}{
 		app,
 	    },
+            Assets: assets,
+    OnStartup: func(ctx context.Context) {
+runtime.WindowSetDevToolsEnabled(ctx, true)
+    },
         })
 	if err != nil {
 		println("Error:", err.Error())

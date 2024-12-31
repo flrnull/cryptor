@@ -9,5 +9,11 @@
   "author": {
     "name": "Evgeniy Udodov",
     "email": "flr.null@gmail.com"
+  },
+"frontend": {
+    "dir": "./frontend",
+    "buildDir": "dist",
+    "install": "npm install",
+    "build": "npm run build"
   }
 }
