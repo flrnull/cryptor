@@ -1,7 +1,7 @@
 package main
 
 import (
-        "embed"
+    "embed"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -9,7 +9,7 @@ import (
 	"errors"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"os"
-        "context"
+    "context"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -28,9 +28,9 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (a *App) OpenFile(ctx context.Context) (string, error) {
+func (a *App) OpenFile() (string, error) {
 	// Показываем диалог выбора файла
-	filePath, err := runtime.OpenFileDialog(ctx, runtime.OpenDialogOptions{
+	filePath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Select a file to open",
 	})
 	if err != nil {
