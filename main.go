@@ -99,7 +99,6 @@ func main() {
 	    },
             Assets: assets,
     OnStartup: func(ctx context.Context) {
-runtime.WindowSetDevToolsEnabled(ctx, true)
     },
         })
 	if err != nil {

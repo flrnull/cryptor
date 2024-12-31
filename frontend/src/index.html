@@ -20,7 +20,7 @@
     const file = event.target.files[0];
     if (file) {
       const filePath = file.path;
-      const result = await window.backend.App.OpenFile(filePath);
+      const result = await window.go.main.App.OpenFile();
       if (result === "Encrypted") {
         alert("This file is encrypted. Please enter the password to decrypt.");
         fileContent.value = "";
@@ -31,12 +31,12 @@
   });
 
   decryptBtn.addEventListener("click", async () => {
-    const content = await window.backend.App.Decrypt(password.value);
+    const content = await window.go.main.App.Decrypt(password.value);
     fileContent.value = content;
   });
 
   saveBtn.addEventListener("click", async () => {
-    await window.backend.App.SaveFile(fileContent.value, password.value);
+    await window.go.main.App.SaveFile(fileContent.value, password.value);
     alert("File saved!");
   });
 </script>
