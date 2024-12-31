@@ -5,6 +5,7 @@ document.querySelector('#app').innerHTML = `
     <h1>Cryptor</h1>
     <p>Use this app to encrypt or decrypt your files.</p>
     <button id="openFile">Open File</button>
+    <br>
     <textarea id="fileContent" rows="10" cols="80" placeholder="File content will appear here..."></textarea>
     <div style="margin-top: 20px;">
       <input type="password" id="password" placeholder="Enter password" />
