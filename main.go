@@ -22,6 +22,7 @@ type App struct {
 	filePath    string
 	isEncrypted bool
 	content     []byte
+	ctx context.Context
 }
 
 func NewApp() *App {
@@ -88,19 +89,24 @@ func (a *App) Decrypt(content, password string) (string, error) {
 	return string(data), nil
 }
 
+// startup is called when the app starts. The context is saved
+// so we can call the runtime methods
+func (a *App) startup(ctx context.Context) {
+	a.ctx = ctx
+}
+
 func main() {
 	app := NewApp()
         err := wails.Run(&options.App{
-	    Title:  "Cryptor",
-	    Width:  800,
-	    Height: 600,
-	    Bind: []interface{}{
-		app,
+            Title:  "Cryptor",
+            Width:  800,
+            Height: 600,
+            Bind: []interface{}{
+            app,
 	    },
-            Assets: assets,
-    OnStartup: func(ctx context.Context) {
-    },
-        })
+        Assets: assets,
+        OnStartup: app.startup,
+    })
 	if err != nil {
 		println("Error:", err.Error())
 	}
