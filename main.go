@@ -140,6 +140,16 @@ func (a *App) Decrypt(content, password string) (string, error) {
 	return string(decryptedContent), nil
 }
 
+func (a *App) ShowNotice(text string) error {
+	_, err := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
+        Type:          runtime.InfoDialog,
+        Title:         "Info",
+        Message:       text,
+        DefaultButton: "Ok",
+    })
+	return err
+}
+
 // Проверка на равенство хешей
 func equalHashes(a, b []byte) bool {
 	if len(a) != len(b) {

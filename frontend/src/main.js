@@ -23,11 +23,7 @@ let filePath;
 
 // Функция для показа диалогов ошибок
 async function showError(message) {
-  await window.runtime.MessageDialog({
-    type: "error",
-    title: "Error",
-    message: message,
-  });
+  await window.go.main.App.ShowNotice(message);
 }
 
 openFileButton.addEventListener("click", async () => {

@@ -17,3 +17,7 @@ export function OpenFile() {
 export function Save(arg1) {
   return window['go']['main']['App']['Save'](arg1);
 }
+
+export function ShowNotice(arg1) {
+  return window['go']['main']['App']['ShowNotice'](arg1);
+}
