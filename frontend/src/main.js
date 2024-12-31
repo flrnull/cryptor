@@ -10,55 +10,75 @@ document.querySelector('#app').innerHTML = `
       <input type="password" id="password" placeholder="Enter password" />
       <button id="encryptFile">Encrypt</button>
       <button id="decryptFile">Decrypt</button>
-<!--      <button id="saveFile">Save</button>-->
     </div>
   </div>
 `;
 
-// Функция для взаимодействия с бэкендом
 const openFileButton = document.getElementById("openFile");
 const fileContentArea = document.getElementById("fileContent");
 const passwordInput = document.getElementById("password");
 const encryptButton = document.getElementById("encryptFile");
 const decryptButton = document.getElementById("decryptFile");
-// const saveButton = document.getElementById("saveFile");
 let filePath;
 
+// Функция для показа диалогов ошибок
+async function showError(message) {
+  await window.runtime.MessageDialog({
+    type: "error",
+    title: "Error",
+    message: message,
+  });
+}
+
 openFileButton.addEventListener("click", async () => {
-  filePath = await window.go.main.App.OpenFile();
-  if (filePath) {
-    fileContentArea.value = filePath;
-  } else {
-    alert("Failed to open file.");
+  try {
+    filePath = await window.go.main.App.OpenFile();
+    if (filePath) {
+      fileContentArea.value = filePath;
+    } else {
+      await showError("Failed to open file.");
+    }
+  } catch (error) {
+    await showError(`Error: ${error.message}`);
   }
 });
-
-// saveButton.addEventListener("click", async () => {
-//   const content = fileContentArea.value;
-//   await window.go.main.App.Save(content);
-//   alert("File saved!");
-// });
 
 encryptButton.addEventListener("click", async () => {
   const content = fileContentArea.value;
   const password = passwordInput.value;
   if (!content || !password) {
-    alert("Please provide both content and password.");
+    await showError("Please provide both content and password.");
     return;
   }
-  const result = await window.go.main.App.Encrypt(content, password);
-  fileContentArea.value = result;
-  alert("File encrypted!");
+  try {
+    const result = await window.go.main.App.Encrypt(content, password);
+    fileContentArea.value = result;
+    await window.runtime.MessageDialog({
+      type: "info",
+      title: "Success",
+      message: "File encrypted successfully!",
+    });
+  } catch (error) {
+    await showError(`Encryption Error: ${error.message}`);
+  }
 });
 
 decryptButton.addEventListener("click", async () => {
   const content = fileContentArea.value;
   const password = passwordInput.value;
   if (!content || !password) {
-    alert("Please provide both content and password.");
+    await showError("Please provide both content and password.");
     return;
   }
-  const result = await window.go.main.App.Decrypt(content, password);
-  fileContentArea.value = result;
-  alert("File decrypted!");
+  try {
+    const result = await window.go.main.App.Decrypt(content, password);
+    fileContentArea.value = result;
+    await window.runtime.MessageDialog({
+      type: "info",
+      title: "Success",
+      message: "File decrypted successfully!",
+    });
+  } catch (error) {
+    await showError(`Decryption Error: ${error.message}`);
+  }
 });
