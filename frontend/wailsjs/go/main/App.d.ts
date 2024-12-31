@@ -6,3 +6,5 @@ export function Decrypt(arg1:string,arg2:string):Promise<string>;
 export function Encrypt(arg1:string,arg2:string):Promise<string>;
 
 export function OpenFile():Promise<string>;
+
+export function Save(arg1:string,arg2:string):Promise<string>;

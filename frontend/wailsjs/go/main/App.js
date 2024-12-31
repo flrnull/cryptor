@@ -13,3 +13,7 @@ export function Encrypt(arg1, arg2) {
 export function OpenFile() {
   return window['go']['main']['App']['OpenFile']();
 }
+
+export function Save(arg1, arg2) {
+  return window['go']['main']['App']['Save'](arg1, arg2);
+}

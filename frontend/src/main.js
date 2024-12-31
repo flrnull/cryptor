@@ -10,6 +10,7 @@ document.querySelector('#app').innerHTML = `
       <input type="password" id="password" placeholder="Enter password" />
       <button id="encryptFile">Encrypt</button>
       <button id="decryptFile">Decrypt</button>
+      <button id="saveFile">Save</button>
     </div>
   </div>
 `;
@@ -20,14 +21,22 @@ const fileContentArea = document.getElementById("fileContent");
 const passwordInput = document.getElementById("password");
 const encryptButton = document.getElementById("encryptFile");
 const decryptButton = document.getElementById("decryptFile");
+const saveButton = document.getElementById("saveFile");
+let filePath;
 
 openFileButton.addEventListener("click", async () => {
-  const filePath = await window.go.main.App.OpenFile();
+  filePath = await window.go.main.App.OpenFile();
   if (filePath) {
     fileContentArea.value = filePath;
   } else {
     alert("Failed to open file.");
   }
+});
+
+saveButton.addEventListener("click", async () => {
+  const content = fileContentArea.value;
+  await window.go.main.App.Save(filePath, content);
+  alert("File saved!");
 });
 
 encryptButton.addEventListener("click", async () => {

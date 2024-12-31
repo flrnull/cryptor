@@ -10,6 +10,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"os"
     "context"
+    "encoding/base64"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -20,7 +21,6 @@ var assets embed.FS
 
 type App struct {
 	filePath    string
-	isEncrypted bool
 	content     []byte
 	ctx context.Context
 }
@@ -54,6 +54,50 @@ func (a *App) OpenFile() (string, error) {
 	return string(data), nil
 }
 
+func (a *App) Save(content, password string) (string, error) {
+	// Если указан пароль, шифруем содержимое
+	var data []byte
+	var err error
+
+	if password != "" {
+		encrypted, err := a.Encrypt(content, password)
+		if err != nil {
+			return "", err
+		}
+		data = []byte(encrypted)
+	} else {
+		data = []byte(content)
+	}
+
+	if a.filePath != "" {
+		err = os.WriteFile(a.filePath, data, 0644)
+		if err != nil {
+			return "", err
+		}
+		return "File saved successfully.", nil
+	}
+
+	savePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title:           "Save File",
+		DefaultFilename: "untitled.txt",
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if savePath == "" {
+		return "", errors.New("save operation cancelled")
+	}
+
+	err = os.WriteFile(savePath, data, 0644)
+	if err != nil {
+		return "", err
+	}
+
+	a.filePath = savePath
+	return "File saved successfully.", nil
+}
+
 // Encrypt шифрует текст
 func (a *App) Encrypt(content, password string) (string, error) {
 	key := sha256.Sum256([]byte(password))
@@ -68,7 +112,8 @@ func (a *App) Encrypt(content, password string) (string, error) {
 	}
 	stream := cipher.NewCFBEncrypter(block, iv)
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], []byte(content))
-	return string(ciphertext), nil
+	// Кодируем в base64
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
 // Decrypt расшифровывает текст
@@ -78,7 +123,11 @@ func (a *App) Decrypt(content, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	data := []byte(content)
+	// Декодируем из base64
+	data, err := base64.StdEncoding.DecodeString(content)
+	if err != nil {
+		return "", err
+	}
 	if len(data) < aes.BlockSize {
 		return "", errors.New("ciphertext too short")
 	}
